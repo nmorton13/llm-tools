@@ -1,8 +1,7 @@
 # llm-tools
 **Welcome!**
 
-This is a collection of small and, hopefully growing, tools I’ve built that have been handy when working with agents. These tools are designed to work with the **Model Context Protocol (MCP)**, so they can be used by AI models, automation scripts, or anyone who finds them useful.
-
+This is a collection of small tools that are, hopefully, growing, which I’ve built and found handy when working with agents. These tools are designed to work with the Model Context Protocol (MCP), so they can be used by AI models, automation scripts, or anyone who finds them useful.
 
 ---
 
