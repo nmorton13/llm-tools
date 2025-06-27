@@ -123,4 +123,16 @@ Sunrise and sunset times are retrieved using the [api.sunrise-sunset.org](https:
 - Limited to localhost access
 - Relies on third-party API for sunrise/sunset data (subject to their availability and rate limits)
 
+## City-to-Timezone Lookup
+
+Currently, the MCP Time Manager server does **not** perform city-to-timezone lookups. When you ask for the time in a city (e.g., "What is the current time in City, State?"), the AI assistant (such as Cursor or an LLM) uses its own knowledge to map the city to the appropriate IANA timezone (e.g., "America/Chicago") and then queries the server for the time in that timezone.
+
+If you want the server itself to support city-to-timezone lookup, you would need to:
+
+1. **Geocode the city name** to latitude and longitude using a geocoding API (such as Google Maps, OpenStreetMap Nominatim, etc.).
+2. **Determine the timezone** for those coordinates using a timezone API (such as Google Time Zone API, TimeZoneDB, GeoNames, or a Python library like `timezonefinder`).
+3. **Integrate these steps** into a new server tool (e.g., `get_time_for_city(city_name: str)`).
+
+This would allow any client to request the time for a city name directly, without relying on the AI assistant's knowledge. Though that works really well!
+
 MIT License. See [LICENSE](../LICENSE) for details. 
