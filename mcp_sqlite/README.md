@@ -1,6 +1,6 @@
 # MCP SQLite Server
 
-A lightweight, extensible server for managing and interacting with SQLite databases via the FastMCP protocol. Designed for automation, scripting, and integration, it provides a suite of tools for database file management, table operations, query execution, and more.
+A lightweight, extensible server for managing and interacting with SQLite databases via the FastMCP protocol. Designed for automation, scripting, and integration, it provides a suite of tools for database file management, table operations, query execution, backup/restore, and more.
 
 ## ⚠️ Disclaimer
 
@@ -12,22 +12,25 @@ This tool is intended for personal projects and development use only. **Do not u
 - No authentication is implemented.
 - Database files are restricted to the configured directory to prevent path traversal.
 - Only basic SQL injection protection is in place.
-- **⚠️ No backup/restore functionality is built into the server. Always maintain regular backups of your database files using your operating system's file backup tools or SQLite's built-in backup utilities.**
+- **⚠️ Backup/restore functionality is now built into the server, but always maintain your own regular backups for safety.**
 
 ---
 
 ## Overview
 
-MCP SQLite Server exposes a set of tools for working with SQLite databases, including creating, listing, and deleting database files, executing queries, managing tables, exporting schemas, and (optionally) logging query history. It is ideal for personal projects, hobby developers, students, and anyone who wants a simple, programmable interface to SQLite without the complexity of larger database systems.
+MCP SQLite Server exposes a set of tools for working with SQLite databases, including creating, listing, and deleting database files, executing queries, managing tables, exporting schemas, backup/restore, and (optionally) logging query history. It is ideal for personal projects, hobby developers, students, and anyone who wants a simple, programmable interface to SQLite without the complexity of larger database systems.
 
 ## Features
 
 - List, create, delete, and rename SQLite database files
 - Execute SELECT, INSERT, UPDATE, and DELETE queries
-- Create, list, and describe tables
+- Create, list, describe, drop, and rename tables
 - Check for table existence
 - Paginated query support and row counting
-- Export full database schema (CREATE statements)
+- Export full database schema (all CREATE statements)
+- Create, list, and drop indexes (including simple and custom indexes)
+- Backup and restore databases to/from the built-in backups directory
+- List, verify, and delete backup files
 - Health check and self-documenting API
 - Optional per-database query logging
 - Structured error handling and input validation
@@ -81,6 +84,31 @@ python mcp_sqlite_server.py --database-dir ./my_databases --enable-query-logging
 # Now you can use it with Cursor AI or any MCP client
 ```
 
+## Backup and Restore
+
+The server now supports built-in backup and restore functionality. Backups are stored in the `backups/` directory inside the server folder by default. You can create, list, verify, restore, and delete backup files using the provided tools.
+
+### Backup/Restore Example
+
+```bash
+# Create a backup of a database
+# (via tool: backup_database)
+
+# List all backups
+# (via tool: list_backups)
+
+# Verify a backup file
+# (via tool: verify_backup)
+
+# Restore a backup to a new or existing database
+# (via tool: restore_database)
+
+# Delete a backup file
+# (via tool: delete_backup)
+```
+
+> **Note:** Always verify your backups and test restores to ensure data safety.
+
 ## Using with Cursor AI
 
 You can use MCP SQLite Server as a custom MCP provider in Cursor AI. To do this, add an entry to your `~/.cursor/mcp.json` file like the following:
@@ -118,9 +146,18 @@ All tools are callable via the FastMCP protocol. Key tools include:
 - **read_query_paginated**: Paginated SELECT queries
 - **row_count**: Get row count for a query or table
 - **export_schema**: Export all CREATE statements (schema)
-- **get_config_info**: Show current server configuration
+- **drop_table**: Drop a table
+- **rename_table**: Rename a table
+- **create_index**: Create an index using raw SQL
+- **create_index_simple**: Create a simple index on a single column
+- **drop_index**: Drop an index
+- **list_indexes**: List all indexes
+- **backup_database**: Create a backup of a database (file copy or SQLite backup API)
+- **restore_database**: Restore a database from a backup file
+- **list_backups**: List all available backup files
+- **delete_backup**: Delete a backup file
+- **verify_backup**: Verify that a backup file is a valid SQLite database
 - **health_check**: Server health status
-- **get_docs**: Documentation for all tools
 
 ## Query Logging
 
@@ -156,6 +193,10 @@ You can interact with the SQLite server using natural language in Cursor AI. Her
 - `Delete the database mydata.db.`
 - `Show me the data in the veggies table in garden.db.`
 - `Add a new column email to the users table in mydata.db.`
+- `Backup the database mydata.db.`
+- `Restore mydata.db from the latest backup.`
+- `List all backup files.`
+- `Verify the backup file mydata_backup_20240601_120000.db.`
 
 Cursor will translate these prompts into the appropriate tool calls to the MCP SQLite Server.
 
@@ -164,11 +205,7 @@ Cursor will translate these prompts into the appropriate tool calls to the MCP S
 - Single-user access only (no concurrent connections)
 - No transaction management via API
 - Limited to localhost access
-- **No backup/restore functionality** - Users are responsible for backing up their database files using:
-  - Operating system file backup tools
-  - SQLite's `.backup` command: `sqlite3 your_database.db ".backup backup_file.db"`
-  - Third-party backup solutions
-  - Regular file system copies (ensure the database is not actively being written to)
+- **Backup/restore functionality is provided, but users are still responsible for maintaining their own regular backups and verifying backup integrity.**
 
 > **Important:** Always backup your database files before making significant changes or before updating the server software.
 
